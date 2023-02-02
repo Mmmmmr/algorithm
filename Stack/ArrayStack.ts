@@ -24,19 +24,19 @@ export class ArrayStack<T> implements IStack<T> {
   }
 }
 
-function tenToBlob(number: number) {
+function decimalToBinary(decimal: number) {
   const stack = new ArrayStack<number>();
-  let remain = number;
-  while (remain >= 2) {
-    const temp = remain % 2;
-    remain = Math.floor(remain / 2);
-    stack.push(temp);
+  while (decimal >= 0) {
+    const result = decimal % 2;
+    decimal = Math.floor(decimal / 2);
+    stack.push(result);
   }
-  let data = "";
+  let binary = "";
   while (!stack.isEmpty()) {
-    data += stack.pop();
+    binary += stack.pop();
   }
-  return data;
+  return binary;
 }
 
-console.log(tenToBlob(35));
+console.log(decimalToBinary(35));
+console.log(decimalToBinary(100));
