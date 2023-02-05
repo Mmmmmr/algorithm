@@ -14,6 +14,5 @@ function isValid(s: string): boolean {
             if(char !== stack.pop()) return false
         }
     }
-    if(!stack.isEmpty()) return false
-    return true
+    return stack.isEmpty()
 };
