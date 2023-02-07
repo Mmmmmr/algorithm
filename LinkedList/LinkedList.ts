@@ -6,6 +6,15 @@ export default class LinkedList<T> {
     return this.size;
   }
 
+  private getNode(position: number) {
+    let current = this.head;
+    let index = 0;
+    while (index++ < position && current) {
+      current = current.next;
+    }
+    return current;
+  }
+
   append(element: T) {
     const node = new Node(element);
 
@@ -29,15 +38,8 @@ export default class LinkedList<T> {
       newNode.next = this.head;
       this.head = newNode;
     } else {
-      let current = this.head;
-      let previous: Node<T> | null = null;
-      let index = 0;
-      while (index < position) {
-        previous = current;
-        current = current!.next;
-        index++;
-      }
-      newNode.next = current;
+      const previous = this.getNode(position - 1);
+      newNode.next = previous!.next;
       previous!.next = newNode;
     }
     this.size++;
@@ -45,11 +47,42 @@ export default class LinkedList<T> {
   }
 
   removeAt(position: number) {
-    if (position < 0 || position >= this.size) return false;
+    if (position < 0 || position >= this.size) return null;
+    let current = this.head;
 
     if (position === 0) {
-      this.head = this.head!.next;
+      this.head = current!.next;
+    } else {
+      const previous = this.getNode(position - 1);
+      current = previous?.next ?? null;
+      previous!.next = previous?.next?.next ?? null;
     }
+    this.size--;
+    return current?.value ?? null;
+  }
+
+  indexOf(value: T) {
+    let current = this.head;
+    let index = 0;
+    while (current) {
+      if (current.value === value) return index;
+      current = current.next;
+      index++;
+    }
+    return -1;
+  }
+
+  get(position: number) {
+    if (position < 0 || position >= this.size) return null;
+
+    return this.getNode(position)?.value ?? null;
+  }
+
+  update(position: number, value: T) {
+    if (position < 0 || position >= this.size) return false;
+    const current = this.getNode(position);
+    current!.value = value;
+    return true;
   }
 
   traverse() {
@@ -61,6 +94,15 @@ export default class LinkedList<T> {
       current = current.next;
     }
     console.log(values.join("->"));
+  }
+
+  remove(value: T) {
+    const index = this.indexOf(value);
+    return this.removeAt(index);
+  }
+
+  isEmpty() {
+    return this.length === 0;
   }
 }
 
@@ -80,6 +122,20 @@ list.insert("fff", 1);
 list.insert("ggg", 4);
 
 list.traverse();
-list.removeAt(0);
-list.removeAt(0);
+console.log(list.removeAt(2));
+console.log(list.removeAt(4));
 list.traverse();
+console.log(list.get(2));
+console.log(list.get(3));
+list.traverse();
+list.update(0, "eee1");
+list.update(2, "bbb1");
+list.update(4, "ddd1");
+list.traverse();
+console.log(
+  list.indexOf("ddd1"),
+  list.indexOf("ddd2"),
+  list.indexOf("eee1"),
+  list.indexOf("eee2"),
+  list.indexOf("eee2")
+);
