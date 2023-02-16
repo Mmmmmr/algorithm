@@ -12,9 +12,21 @@ class HashTable<T> {
     return index;
   }
 
+  private getNextPrime(num: number) {
+    let newLength = num;
+    while (!this.isPrime(newLength)) {
+      newLength++;
+    }
+    return newLength;
+  }
+
   private resize(newLength: number) {
-    this.length = newLength;
-    let oldStorage = this.storage;
+    let newPrime = this.getNextPrime(newLength);
+    if (newPrime < 7) {
+      newPrime = 7;
+    }
+    this.length = newPrime;
+    const oldStorage = this.storage;
 
     this.storage = [];
     this.count = 0;
@@ -85,6 +97,16 @@ class HashTable<T> {
       }
     }
     return undefined;
+  }
+
+  isPrime(num: number) {
+    const temp = Math.floor(Math.sqrt(num));
+    for (let i = 2; i < temp; i++) {
+      if (num % i === 0) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
