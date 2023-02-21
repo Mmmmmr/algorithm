@@ -3,6 +3,15 @@ class TreeNode<T> {
   value: T;
   left: TreeNode<T> | null = null;
   right: TreeNode<T> | null = null;
+  parent: TreeNode<T> | null = null;
+
+  get isLeft() {
+    return !!(this.parent && this.parent.left === this);
+  }
+
+  get isRight() {
+    return !!(this.parent && this.parent.right === this);
+  }
 
   constructor(value: T) {
     this.value = value;
@@ -85,13 +94,83 @@ class BinarySearchTree<T> {
     while (queue.length > 0) {
       const current = queue.shift()!;
       console.log(current.value);
-      if (current.left) {
+      if (current.left !== null) {
         queue.push(current.left);
       }
-      if (current.right) {
+      if (current.right !== null) {
         queue.push(current.right);
       }
     }
+  }
+
+  getMaxValue() {
+    let current = this.root;
+    while (current && current.right) {
+      current = current.right;
+    }
+    return current?.value;
+  }
+
+  getMinValue() {
+    let current = this.root;
+    while (current && current.left) {
+      current = current.left;
+    }
+    return current?.value;
+  }
+
+  private searchNode(value: T): TreeNode<T> | null {
+    let current = this.root;
+    let parent: TreeNode<T> | null = null;
+    while (current) {
+      if (current.value === value) return current;
+      parent = current;
+      if (current.value > value) {
+        current = current.left;
+      } else {
+        current = current.right;
+      }
+      if (current) current.parent = parent;
+    }
+    return null;
+  }
+
+  search(value: T): boolean {
+    return !!this.searchNode(value);
+  }
+
+  remove(value: T): boolean {
+    const current = this.searchNode(value);
+
+    if (!current) return false;
+
+    if (current.left === null && current.right === null) {
+      if (current === this.root) {
+        this.root = null;
+      } else if (current.isLeft) {
+        current.parent!.left = null;
+      } else {
+        current.parent!.right = null;
+      }
+    } else if (current.left === null) {
+      if (current === this.root) {
+        this.root = null;
+      } else if (current.isLeft) {
+        current.parent!.left = current.right;
+      } else {
+        current.parent!.right = current.right;
+      }
+    } else if (current.right === null) {
+      if (current === this.root) {
+        this.root = null;
+      } else if (current.isLeft) {
+        current.parent!.left = current.left;
+      } else {
+        current.parent!.right = current.left;
+      }
+    }
+
+    return false;
   }
 }
 
@@ -113,4 +192,10 @@ bst.insert(25);
 bst.insert(6);
 
 bst.print();
-bst.levelOrderTraverse();
+bst.remove(3);
+bst.remove(8);
+bst.remove(12);
+bst.print();
+bst.remove(5);
+bst.remove(9);
+bst.print();
