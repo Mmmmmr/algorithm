@@ -139,37 +139,51 @@ class BinarySearchTree<T> {
     return !!this.searchNode(value);
   }
 
+  getSuccessor(delNode: TreeNode<T>) {
+    let current = delNode.right;
+    let successor: TreeNode<T> | null = null;
+    while (current) {
+      successor = current;
+      current = current.left;
+      if (current) {
+        current.parent = successor;
+      }
+    }
+
+    if (successor !== delNode.right) {
+      successor!.parent!.left = successor!.right;
+      successor!.right = delNode.right;
+    }
+
+    successor!.left = delNode.left;
+
+    return successor!;
+  }
+
   remove(value: T): boolean {
     const current = this.searchNode(value);
 
     if (!current) return false;
 
-    if (current.left === null && current.right === null) {
-      if (current === this.root) {
-        this.root = null;
-      } else if (current.isLeft) {
-        current.parent!.left = null;
-      } else {
-        current.parent!.right = null;
-      }
-    } else if (current.left === null) {
-      if (current === this.root) {
-        this.root = null;
-      } else if (current.isLeft) {
-        current.parent!.left = current.right;
-      } else {
-        current.parent!.right = current.right;
-      }
-    } else if (current.right === null) {
-      if (current === this.root) {
-        this.root = null;
-      } else if (current.isLeft) {
-        current.parent!.left = current.left;
-      } else {
-        current.parent!.right = current.left;
-      }
-    }
+    let replaceNode: TreeNode<T> | null = null;
 
+    if (current.left === null && current.right === null) {
+      replaceNode = null;
+    } else if (current.left === null) {
+      replaceNode = current.right;
+    } else if (current.right === null) {
+      replaceNode = current.left;
+    } else {
+      const successor = this.getSuccessor(current);
+      replaceNode = successor;
+    }
+    if (current === this.root) {
+      this.root = replaceNode;
+    } else if (current.isLeft) {
+      current.parent!.left = replaceNode;
+    } else {
+      current.parent!.right = replaceNode;
+    }
     return false;
   }
 }
@@ -198,4 +212,12 @@ bst.remove(12);
 bst.print();
 bst.remove(5);
 bst.remove(9);
+bst.print();
+bst.remove(15);
+bst.print();
+bst.remove(7);
+bst.print();
+bst.remove(20);
+bst.print();
+bst.remove(11);
 bst.print();
