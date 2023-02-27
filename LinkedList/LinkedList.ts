@@ -11,8 +11,9 @@ class Node<T> {
 
 // 2.创建LinkedList的类
 export default class LinkedList<T> implements ILinkedList<T> {
-  private head: Node<T> | null = null;
-  private length: number = 0;
+  protected head: Node<T> | null = null;
+  protected length: number = 0;
+  protected tail: Node<T> | null = null;
 
   size() {
     return this.length;
@@ -42,15 +43,9 @@ export default class LinkedList<T> implements ILinkedList<T> {
     if (!this.head) {
       this.head = newNode;
     } else {
-      let current = this.head;
-      while (current.next) {
-        current = current.next;
-      }
-
-      // current肯定是指向最后一个节点的
-      current.next = newNode;
+      this.tail!.next = newNode;
     }
-
+    this.tail = newNode;
     // 3.size++
     this.length++;
   }
