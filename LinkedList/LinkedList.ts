@@ -1,13 +1,5 @@
 import ILinkedList from "./ILinkedList";
-
-// 1.创建Node节点类
-class Node<T> {
-  value: T;
-  next: Node<T> | null = null;
-  constructor(value: T) {
-    this.value = value;
-  }
-}
+import { Node } from "./LinkedNode";
 
 // 2.创建LinkedList的类
 export default class LinkedList<T> implements ILinkedList<T> {
@@ -25,7 +17,7 @@ export default class LinkedList<T> implements ILinkedList<T> {
 
   // 封装私有方法
   // 根据position获取到当前的节点(不是节点的value, 而是获取节点)
-  private getNode(position: number): Node<T> | null {
+  protected getNode(position: number): Node<T> | null {
     let index = 0;
     let current = this.head;
     while (index++ < position && current) {
@@ -57,10 +49,22 @@ export default class LinkedList<T> implements ILinkedList<T> {
     let current = this.head;
     while (current) {
       values.push(current.value);
-      current = current.next;
+      if (this.isTail(current)) {
+        current = null;
+      } else {
+        current = current.next;
+      }
+    }
+
+    if (this.head && this.tail?.next === this.head) {
+      values.push(this.head.value);
     }
 
     console.log(values.join("->"));
+  }
+
+  private isTail(node: Node<T>) {
+    return node === this.tail;
   }
 
   // 插入方法:
@@ -79,6 +83,9 @@ export default class LinkedList<T> implements ILinkedList<T> {
       const previous = this.getNode(position - 1);
       newNode.next = previous!.next;
       previous!.next = newNode;
+      if (position === this.length) {
+        this.tail = newNode;
+      }
     }
     this.length++;
 
@@ -94,11 +101,19 @@ export default class LinkedList<T> implements ILinkedList<T> {
     let current = this.head;
     if (position === 0) {
       this.head = current?.next ?? null;
+
+      if (this.length === 1) {
+        this.tail = null;
+      }
     } else {
       // 重构成如下代码
       const previous = this.getNode(position - 1);
+      current = previous!.next;
       // 找到需要的节点
       previous!.next = previous?.next?.next ?? null;
+      if (position === this.length - 1) {
+        this.tail = previous;
+      }
     }
 
     this.length--;
@@ -133,7 +148,11 @@ export default class LinkedList<T> implements ILinkedList<T> {
       if (current.value === value) {
         return index;
       }
-      current = current.next;
+      if (this.isTail(current)) {
+        current = null;
+      } else {
+        current = current.next;
+      }
       index++;
     }
 
