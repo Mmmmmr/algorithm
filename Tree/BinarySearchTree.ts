@@ -1,5 +1,5 @@
 import { btPrint } from "hy-algokit";
-class TreeNode<T> {
+export class TreeNode<T> {
   value: T;
   left: TreeNode<T> | null = null;
   right: TreeNode<T> | null = null;
@@ -18,35 +18,45 @@ class TreeNode<T> {
   }
 }
 
-class BinarySearchTree<T> {
-  private root: TreeNode<T> | null = null;
+export default class BinarySearchTree<T> {
+  protected root: TreeNode<T> | null = null;
 
   print() {
     btPrint(this.root);
   }
 
+  protected createNode(value: T): TreeNode<T> {
+    return new TreeNode(value);
+  }
+
   insert(value: T) {
-    const newNode = new TreeNode(value);
+    const newNode = this.createNode(value);
 
     if (this.root === null) {
       this.root = newNode;
     } else {
       this.insertNode(this.root, newNode);
     }
+
+    this.checkBalance(newNode);
   }
 
-  insertNode<T>(root: TreeNode<T>, newNode: TreeNode<T>) {
-    if (root.value > newNode.value) {
-      if (root.left === null) {
-        root.left = newNode;
+  protected checkBalance(node: TreeNode<T>) {}
+
+  insertNode<T>(node: TreeNode<T>, newNode: TreeNode<T>) {
+    if (node.value > newNode.value) {
+      if (node.left === null) {
+        node.left = newNode;
+        newNode.parent = node;
       } else {
-        this.insertNode(root.left, newNode);
+        this.insertNode(node.left, newNode);
       }
     } else {
-      if (root.right === null) {
-        root.right = newNode;
+      if (node.right === null) {
+        node.right = newNode;
+        newNode.parent = node;
       } else {
-        this.insertNode(root.right, newNode);
+        this.insertNode(node.right, newNode);
       }
     }
   }
@@ -152,10 +162,15 @@ class BinarySearchTree<T> {
 
     if (successor !== delNode.right) {
       successor!.parent!.left = successor!.right;
-      successor!.right = delNode.right;
+      if (successor?.right) {
+        successor.right.parent = successor.parent;
+      }
+    } else {
+      delNode.right = successor!.right;
+      if (successor?.right) {
+        successor.right.parent = delNode;
+      }
     }
-
-    successor!.left = delNode.left;
 
     return successor!;
   }
@@ -164,6 +179,7 @@ class BinarySearchTree<T> {
     const current = this.searchNode(value);
 
     if (!current) return false;
+    let delNode = current;
 
     let replaceNode: TreeNode<T> | null = null;
 
@@ -175,7 +191,10 @@ class BinarySearchTree<T> {
       replaceNode = current.left;
     } else {
       const successor = this.getSuccessor(current);
-      replaceNode = successor;
+      current.value = successor.value;
+      delNode = successor;
+      this.checkBalance(delNode);
+      return true;
     }
     if (current === this.root) {
       this.root = replaceNode;
@@ -184,6 +203,10 @@ class BinarySearchTree<T> {
     } else {
       current.parent!.right = replaceNode;
     }
+    if (replaceNode && current.parent) {
+      replaceNode.parent = current.parent;
+    }
+    this.checkBalance(delNode);
     return false;
   }
 }
