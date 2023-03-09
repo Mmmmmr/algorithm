@@ -9,7 +9,8 @@ function quickSort(arr: number[]): number[] {
     let j = right - 1;
     while (i <= j) {
       while (arr[i] < pivot) {
-        i++; 
+        i++;
+      }
       while (arr[j] > pivot) {
         j--;
       }
